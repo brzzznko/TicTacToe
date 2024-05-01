@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 
@@ -16,35 +17,34 @@ import org.springframework.stereotype.Controller;
 public class WebSocketController {
 
     private final GameService service;
+    private final SimpMessagingTemplate template;
 
 
     @MessageMapping("/move")
-    @SendTo("/topic/accepted/move")
-    public MoveDTO handleMove(MoveDTO move) throws InterruptedException {
-        Thread.sleep(5000);
-        service.acceptMove(move);
-        return move;
+    public void handleMove(MoveDTO move) {
+        try {
+            service.acceptMove(move);
+        } catch (RuntimeException e) {
+            template.convertAndSend("/topic/error/move", move);
+        }
+
+        template.convertAndSend("/topic/accepted/move", move);
     }
 
     @MessageMapping("/move/request")
     @SendTo("/topic/requested/move")
-    public MoveDTO handleMoveRequest() throws InterruptedException {
-        Thread.sleep(5000);
+    public MoveDTO handleMoveRequest() {
         return service.proposeMove();
     }
 
     @MessageMapping("/move/accepted")
-    public void handleAcceptedMove(MoveDTO move) throws InterruptedException {
-        Thread.sleep(5000);
-
+    public void handleAcceptedMove(MoveDTO move) {
         service.acceptMove(move);
     }
 
     @MessageMapping("/game/join")
     @SendTo("/topic/sign")
-    public Character handleJoiningRequest() throws InterruptedException {
-        Thread.sleep(5000);
-
+    public Character handleJoiningRequest() {
         // TODO check if game started
         service.setPlayerSign(Sign.X);
         return Sign.O;

@@ -98,5 +98,18 @@ public class ClientRunnable  {
                 service.acceptRequestedMove(session, move);
             }
         });
+
+        session.subscribe("/topic/error/move", new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return MoveDTO.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                MoveDTO move = (MoveDTO) payload;
+                service.rejectMove(move);
+            }
+        });
     }
 }

@@ -1,6 +1,8 @@
 package com.brzzznko.tictactoe.service;
 
 import com.brzzznko.tictactoe.enumeration.Sign;
+import com.brzzznko.tictactoe.exception.InvalidMoveException;
+import com.brzzznko.tictactoe.exception.InvalidTurnException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -57,13 +59,13 @@ public class BoardService {
 
     private void validateMove(int index) {
         if (index < 0 || index > 9 || board[index] != ' ') {
-            throw new RuntimeException("Wrong move!");
+            throw new InvalidMoveException();
         }
     }
 
     private void checkTurn(char sign) {
         if (lastPlayed == sign) {
-            throw new RuntimeException("It's not your turn");
+            throw new InvalidTurnException();
         }
     }
 
