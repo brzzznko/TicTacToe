@@ -2,7 +2,6 @@ package com.brzzznko.tictactoe.client;
 
 import com.brzzznko.tictactoe.model.MoveDTO;
 import com.brzzznko.tictactoe.service.GameService;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +11,7 @@ import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -23,41 +23,41 @@ import java.util.concurrent.ExecutionException;
 @Component
 @RequiredArgsConstructor
 @Profile("client")
-public class ClientRunnable  {
+public class Client {
 
     private final GameService service;
+
+    private StompSession session;
 
     @Value("${destination.url}")
     private String serverUrl;
 
-    @Value("${delay.millis}")
-    private Integer delay;
-
-    @PostConstruct
-    private void init() throws ExecutionException, InterruptedException {
-        //todo
-        run();
+    @Scheduled(fixedRateString = "${delay.millis}")
+    private void run() throws ExecutionException, InterruptedException {
+        service.nextStep(getSession());
     }
 
-    public void run() throws ExecutionException, InterruptedException {
-        StompSession session = connectToWebSocket();
-        subscribeToTopics(session);
-
-        while (!Thread.currentThread().isInterrupted()) {
-            service.nextStep(session);
-            Thread.sleep(delay);
+    private StompSession getSession() throws ExecutionException, InterruptedException {
+        if (session != null && session.isConnected()) {
+            return session;
         }
+
+        return connectToWebSocket();
     }
 
     private StompSession connectToWebSocket() throws ExecutionException, InterruptedException {
-        log.info("Connecting to web socket");
+        log.info("Trying to connect to web socket...");
 
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
         String url = "ws://" + serverUrl + "/connection";
+        session = stompClient.connectAsync(url, new StompSessionHandlerAdapter() {}).get();
+        subscribeToTopics(session);
 
-        return stompClient.connectAsync(url, new StompSessionHandlerAdapter() {}).get();
+        log.info("Connected to web socket");
+
+        return session;
     }
 
     private void subscribeToTopics(StompSession session) {
