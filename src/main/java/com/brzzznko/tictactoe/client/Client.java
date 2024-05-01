@@ -2,6 +2,7 @@ package com.brzzznko.tictactoe.client;
 
 import com.brzzznko.tictactoe.model.MoveDTO;
 import com.brzzznko.tictactoe.service.GameService;
+import com.brzzznko.tictactoe.utility.WebSocketApiConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +52,7 @@ public class Client {
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
-        String url = "ws://" + serverUrl + "/connection";
+        String url = "ws://" + serverUrl + WebSocketApiConstants.CONNECTION_PREFIX;
         session = stompClient.connectAsync(url, new StompSessionHandlerAdapter() {}).get();
         subscribeToTopics(session);
 
@@ -61,7 +62,7 @@ public class Client {
     }
 
     private void subscribeToTopics(StompSession session) {
-        session.subscribe("/topic/sign", new StompFrameHandler() {
+        session.subscribe(WebSocketApiConstants.DESTINATION_GET_SIGN, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return Character.class;
@@ -74,7 +75,7 @@ public class Client {
             }
         });
 
-        session.subscribe("/topic/accepted/move", new StompFrameHandler() {
+        session.subscribe(WebSocketApiConstants.DESTINATION_MOVE_ACCEPTED, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return MoveDTO.class;
@@ -87,7 +88,7 @@ public class Client {
             }
         });
 
-        session.subscribe("/topic/requested/move", new StompFrameHandler() {
+        session.subscribe(WebSocketApiConstants.DESTINATION_MOVE_REQUESTED, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return MoveDTO.class;
@@ -100,7 +101,7 @@ public class Client {
             }
         });
 
-        session.subscribe("/topic/error/move", new StompFrameHandler() {
+        session.subscribe(WebSocketApiConstants.DESTINATION_MOVE_REJECTED, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return MoveDTO.class;

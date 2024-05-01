@@ -1,4 +1,4 @@
-package com.brzzznko.tictactoe.enumeration;
+package com.brzzznko.tictactoe.utility;
 
 import lombok.experimental.UtilityClass;
 

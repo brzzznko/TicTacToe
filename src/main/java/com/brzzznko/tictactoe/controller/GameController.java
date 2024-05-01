@@ -15,6 +15,6 @@ public class GameController {
 
     @GetMapping("/state")
     public String getGameState() {
-        return gameService.getStatus().getDescription() + "\n\n" + boardService.getBoardVisualised();
+        return gameService.getStatus().getDescription() + "\n" + boardService.getBoardVisualised();
     }
 }

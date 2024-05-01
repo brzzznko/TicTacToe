@@ -7,6 +7,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import static com.brzzznko.tictactoe.utility.WebSocketApiConstants.*;
+
 @Configuration
 @EnableWebSocketMessageBroker
 @Profile("server")
@@ -15,12 +17,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         //TODO only one connection
-        registry.addEndpoint("/connection").setAllowedOriginPatterns("*");
+        registry.addEndpoint(CONNECTION_PREFIX).setAllowedOriginPatterns("*");
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic");
-        registry.setApplicationDestinationPrefixes("/app");
+        registry.enableSimpleBroker(DESTINATION_PREFIX);
+        registry.setApplicationDestinationPrefixes(APP_PREFIX);
     }
 }
