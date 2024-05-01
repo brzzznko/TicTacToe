@@ -19,9 +19,13 @@ It consists of two instances, a server and a client, which communicate with each
     ```bash
   cd TicTacToe
 
+* Build app with gradle:
+    ```bash
+    ./gradlew build
+    ```
 * Run docker compose:
      ```bash
-     docker compose up
+     docker-compose up --build
      ```
 
 ### Running Locally with Gradle

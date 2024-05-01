@@ -1,3 +1,5 @@
+version: '3'
+
 services:
   server:
     build:
@@ -6,8 +8,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - "SPRING_PROFILES_ACTIVE=server"
-    network_mode: host
+      - "profile=server"
 
   client:
     build:
@@ -16,6 +17,5 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - "SPRING_PROFILES_ACTIVE=client"
-    network_mode: host
-
+      - "profile=client"
+      - "destination=server:8080"
