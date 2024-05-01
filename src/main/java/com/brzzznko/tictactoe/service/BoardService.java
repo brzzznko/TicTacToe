@@ -35,9 +35,6 @@ public class BoardService {
 
         board[index] = sign;
         lastPlayed = sign;
-
-        checkWinner(sign);
-        checkDraw();
     }
 
     public String getBoardVisualised() {
@@ -69,7 +66,7 @@ public class BoardService {
         }
     }
 
-    private boolean checkWinner(char sign) {
+    public boolean checkWinner(char sign) {
         for (int[] winCombination : winCombinations) {
             int count = 0;
 
@@ -86,7 +83,7 @@ public class BoardService {
         return false;
     }
 
-    private boolean checkDraw() {
+    public boolean checkDraw() {
         for (char sign : board) {
             if (sign == Sign.EMPTY) {
                 return false;

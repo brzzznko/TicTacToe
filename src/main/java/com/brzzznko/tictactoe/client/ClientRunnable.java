@@ -35,6 +35,7 @@ public class ClientRunnable  {
 
     @PostConstruct
     private void init() throws ExecutionException, InterruptedException {
+        //todo
         run();
     }
 

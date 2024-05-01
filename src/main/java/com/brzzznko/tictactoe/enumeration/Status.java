@@ -7,14 +7,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Status {
 
-    WAITING("Waiting players to start game"),
-    REQUESTED_MOVE("Requested move from other instance"),
-    RECEIVED_MOVE("Received move from instance"),
-    WAITING_ACCEPT("Sent move, waiting for accept message"),
-    RECEIVED_ACCEPT("Received accept message"),
-    CLIENT_WON("Client won the game"),
-    SERVER_WON("Server won the game"),
-    DRAW("Draw");
+    WAITING("Waiting players to start game..."),
+    REQUESTED_MOVE("Requested move from other instance."),
+    RECEIVED_MOVE("Received move from instance."),
+    WAITING_ACCEPT("Sent move, waiting for accept message."),
+    RECEIVED_ACCEPT("Received accept message."),
+    WON("Current instance won the game!"),
+    LOST("Current instance lost the game!"),
+
+    DRAW("The game ended in a draw!");
 
     private final String description;
 }

@@ -28,16 +28,15 @@ public class GameService {
             case RECEIVED_MOVE -> proposeMove(session);
         }
     }
-
-    private void getPlayerSign(StompSession session) {
-        log.info("Asking server to get player sign");
-        session.send("/app/game/join", "");
-    }
-
     public void setPlayerSign(Character sign) {
         log.info("Current player will use sign: {}", sign);
         service.setCurrentSign(sign);
         status = Status.RECEIVED_MOVE;
+    }
+
+    private void getPlayerSign(StompSession session) {
+        log.info("Asking server to get player sign");
+        session.send("/app/game/join", "");
     }
 
     private void proposeMove(StompSession session) {
@@ -68,6 +67,7 @@ public class GameService {
         service.makeMove(move.getIndex(), move.getSign());
         log.info("Accepted move: {}", move);
         status = Status.RECEIVED_ACCEPT;
+        checkGameEnd(move.getSign());
     }
     
     private void requestMove(StompSession session) {
@@ -82,6 +82,7 @@ public class GameService {
             service.makeMove(move.getIndex(), move.getSign());
             log.info("{} is accepted", move);
             status = Status.RECEIVED_MOVE;
+            checkGameEnd(move.getSign());
             session.send("/app/move/accepted", move);
         }
         catch (InvalidMoveException e) {
@@ -94,6 +95,21 @@ public class GameService {
     public void rejectMove(MoveDTO move) {
         log.info("{} was rejected by other instance", move);
         status = Status.RECEIVED_MOVE;
+    }
+
+    public void checkGameEnd(Character sign) {
+        if (service.checkWinner(sign)) {
+            if (sign.equals(service.getCurrentSign())) {
+                log.info("Current player {} won the game!", sign);
+                status = Status.WON;
+            } else {
+                log.info("Other player {} won the game", sign);
+                status = Status.LOST;
+            }
+        } else if (service.checkDraw()) {
+            log.info("The game ended in a draw!");
+            status = Status.DRAW;
+        }
     }
     
 }
