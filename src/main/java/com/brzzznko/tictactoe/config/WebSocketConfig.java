@@ -6,6 +6,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 import static com.brzzznko.tictactoe.utility.WebSocketApiConstants.*;
 
@@ -16,8 +17,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        //TODO only one connection
-        registry.addEndpoint(CONNECTION_PREFIX).setAllowedOriginPatterns("*");
+        registry.addEndpoint(CONNECTION_PREFIX)
+                .setAllowedOriginPatterns("*");
     }
 
     @Override
@@ -25,4 +26,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.enableSimpleBroker(DESTINATION_PREFIX);
         registry.setApplicationDestinationPrefixes(APP_PREFIX);
     }
+
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        registry.addDecoratorFactory(MaxConnectionsDecorator::new);
+    }
 }
+
+
