@@ -61,9 +61,8 @@ public class BoardService {
     }
 
     public void setCurrentSign(char currentSign) {
-        if (Sign.EMPTY == this.currentSign) {
+        if (Sign.EMPTY.equals(this.currentSign)) {
             this.currentSign = currentSign;
-
         }
     }
 
@@ -84,7 +83,7 @@ public class BoardService {
             int count = 0;
 
             for (int i : winCombination) {
-                if (board[i] == sign) {
+                if (board[i].equals(sign)) {
                     count++;
                 }
             }

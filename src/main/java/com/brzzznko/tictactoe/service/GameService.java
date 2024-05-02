@@ -41,7 +41,9 @@ public class GameService {
             if (gameInfo.getGameStatus() == Status.WAITING) {
                 setPlayerSign(Sign.X);
 
-                return gameInfo.toBuilder().enemySign(Sign.X).build();
+                return gameInfo.toBuilder().
+                        enemySign(Sign.X)
+                        .build();
             } else {
                 acceptGameState(gameInfo);
                 return gameInfo;

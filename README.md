@@ -4,14 +4,13 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/bc40e3751b0e4cc48046aa5b880d91ad)](https://app.codacy.com/gh/brzzznko/TicTacToe/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/bc40e3751b0e4cc48046aa5b880d91ad)](https://app.codacy.com/gh/brzzznko/TicTacToe/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 
-
 This project implements a Tic-Tac-Toe game using Spring Boot and WebSocket technology.  
 It consists of two instances, a server and a client, which communicate with each other over WebSocket connections and playing the game automatically.
 Instances are able to reconnect and continue playing from the state where the other instance left off.
 
 ## Getting Started
 
-###  Running with Docker Compose
+### Running with Docker Compose
 * Clone the repository:
    ```bash
    git clone https://github.com/brzzznko/TicTacToe.git
