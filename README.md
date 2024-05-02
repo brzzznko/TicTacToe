@@ -7,6 +7,7 @@
 
 This project implements a Tic-Tac-Toe game using Spring Boot and WebSocket technology.  
 It consists of two instances, a server and a client, which communicate with each other over WebSocket connections and playing the game automatically.
+Instances are able to reconnect and continue playing from the state where the other instance left off.
 
 ## Getting Started
 
