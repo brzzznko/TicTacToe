@@ -1,5 +1,7 @@
 package com.brzzznko.tictactoe.service;
 
+import com.brzzznko.tictactoe.model.GameDTO;
+import com.brzzznko.tictactoe.utility.Sign;
 import com.brzzznko.tictactoe.utility.Status;
 import com.brzzznko.tictactoe.exception.InvalidMoveException;
 import com.brzzznko.tictactoe.model.MoveDTO;
@@ -21,24 +23,91 @@ public class GameService {
     private final BoardService service;
 
     private volatile Status status = Status.WAITING;
+    private volatile Status beforeDisconnectStatus = Status.WAITING;
 
     public void nextStep(StompSession session) {
         switch (status) {
-            case WAITING -> getPlayerSign(session);
+            case WAITING, DISCONNECTED -> joinGame(session);
             case RECEIVED_ACCEPT -> requestMove(session);
             case RECEIVED_MOVE -> proposeMove(session);
+            case REJECT_REQUIRED -> sendReject();
         }
     }
 
-    public void setPlayerSign(Character sign) {
-        log.info("The current player has selected the sign: {}", sign);
-        service.setCurrentSign(sign);
-        status = Status.RECEIVED_MOVE;
+    public GameDTO handleJoinRequest(GameDTO gameInfo) {
+        log.info("Another instance is joining the game");
+
+        if (status == Status.WAITING) {
+            if (gameInfo.getGameStatus() == Status.WAITING) {
+                setPlayerSign(Sign.X);
+
+                return gameInfo.toBuilder().enemySign(Sign.X).build();
+            } else {
+                acceptGameState(gameInfo);
+                return gameInfo;
+            }
+        } else {
+            return GameDTO.builder()
+                    .enemySign(service.getCurrentSign())
+                    .board(service.getBoard())
+                    .gameStatus(beforeDisconnectStatus)
+                    .build();
+        }
     }
 
-    private void getPlayerSign(StompSession session) {
-        log.info("Requesting player's sign from the server");
-        session.send(WebSocketApiConstants.APP_GAME_JOIN, "");
+    public void handleDisconnect() {
+        log.info("Other instance has disconnected...");
+        beforeDisconnectStatus = Status.valueOf(status.name());
+        status = Status.DISCONNECTED;
+    }
+
+    public void acceptGameState(GameDTO gameInfo) {
+        if (status.equals(Status.WAITING)) {
+            log.info("Accepted game state from other instance");
+            service.fillBoard(gameInfo.getBoard());
+            status = getStatusFromEnemy(gameInfo.getGameStatus());
+            setPlayerSign(getSignFromEnemy(gameInfo.getEnemySign()));
+        } else if (status.equals(Status.DISCONNECTED)) {
+            log.info("Joined. Game continues!");
+            status = Status.valueOf(beforeDisconnectStatus.name());
+        }
+
+        checkGameEnd();
+    }
+
+    private void setPlayerSign(Character sign) {
+        log.info("The current player has selected the sign: {}", sign);
+        service.setCurrentSign(sign);
+    }
+
+    private Character getSignFromEnemy(Character enemySign) {
+        if (enemySign.equals(Sign.X)) {
+            return Sign.O;
+        }
+
+        return Sign.X;
+    }
+
+    private Status getStatusFromEnemy(Status status) {
+        return switch (status) {
+            case WAITING, RECEIVED_ACCEPT, DISCONNECTED -> Status.RECEIVED_MOVE;
+            case REJECT_REQUIRED, WAITING_ACCEPT, REQUESTED_MOVE -> Status.REJECT_REQUIRED;
+            case RECEIVED_MOVE -> Status.RECEIVED_ACCEPT;
+            case WON -> Status.LOST;
+            case LOST -> Status.WON;
+            case DRAW -> Status.DRAW;
+        };
+    }
+
+    private void joinGame(StompSession session) {
+        log.info("Sending join request to the server...");
+
+        GameDTO gameInfo = GameDTO.builder()
+                .gameStatus(beforeDisconnectStatus)
+                .enemySign(service.getCurrentSign())
+                .board(service.getBoard()).build();
+
+        session.send(WebSocketApiConstants.APP_GAME_JOIN, gameInfo);
     }
 
     private void proposeMove(StompSession session) {
@@ -72,6 +141,13 @@ public class GameService {
         checkGameEnd(move.getSign());
     }
 
+    public void handleMove(MoveDTO move) {
+        service.makeMove(move.getIndex(), move.getSign());
+        log.info("{} has been handled", move);
+        status = Status.RECEIVED_MOVE;
+        checkGameEnd(move.getSign());
+    }
+
     private void requestMove(StompSession session) {
         log.info("Asking server to make a move");
         session.send(WebSocketApiConstants.APP_MOVE_REQUEST, "");
@@ -100,19 +176,38 @@ public class GameService {
         status = Status.RECEIVED_MOVE;
     }
 
-    public void checkGameEnd(Character sign) {
-        if (service.checkWinner(sign)) {
-            if (sign.equals(service.getCurrentSign())) {
-                log.info("Current player {} won the game!", sign);
-                status = Status.WON;
-            } else {
-                log.info("Other player {} won the game", sign);
-                status = Status.LOST;
-            }
+    private void sendReject() {
+        log.info("Rejecting losted move from the server");
+        status = Status.RECEIVED_ACCEPT;
+    }
 
-        } else if (service.checkDraw()) {
+    public void checkGameEnd(Character sign) {
+        if (service.isWinner(sign)) {
+            defineWinner(sign);
+        } else if (service.isDraw()) {
             log.info("The game ended in a draw!");
             status = Status.DRAW;
+        }
+    }
+
+    public void checkGameEnd() {
+        if (service.isWinner(Sign.X)) {
+            defineWinner(Sign.X);
+        } else if (service.isWinner(Sign.O)) {
+            defineWinner(Sign.O);
+        } else if (service.isDraw()) {
+            log.info("The game ended in a draw!");
+            status = Status.DRAW;
+        }
+    }
+
+    private void defineWinner(Character sign) {
+        if (sign.equals(service.getCurrentSign())) {
+            log.info("Current player {} won the game!", sign);
+            status = Status.WON;
+        } else {
+            log.info("Other player {} won the game", sign);
+            status = Status.LOST;
         }
     }
 }

@@ -18,7 +18,7 @@ class BoardServiceTest {
         service.makeMove(3, Sign.O);
         service.makeMove(6, Sign.X);
 
-        char [] boardExpected = {
+        Character [] boardExpected = {
                 'O', 'X', ' ',
                 'O', ' ', ' ',
                 'X', ' ', ' '
@@ -35,19 +35,19 @@ class BoardServiceTest {
         service.makeMove(2, Sign.O);
         service.makeMove(8, Sign.X);
 
-        Assertions.assertTrue(service.checkWinner(Sign.X));
+        Assertions.assertTrue(service.isWinner(Sign.X));
     }
 
     @Test
     public void checkWinnerOnNotWinCombination() {
         service.makeMove(0, Sign.X);
 
-        Assertions.assertFalse(service.checkWinner(Sign.O));
+        Assertions.assertFalse(service.isWinner(Sign.O));
     }
 
     @Test
     public void checkWinnerOnEmptyField() {
-        Assertions.assertFalse(service.checkWinner(Sign.O));
+        Assertions.assertFalse(service.isWinner(Sign.O));
     }
 
     @Test
@@ -62,7 +62,7 @@ class BoardServiceTest {
         service.makeMove(6, Sign.O);
         service.makeMove(7, Sign.X);
 
-        Assertions.assertTrue(service.checkDraw());
+        Assertions.assertTrue(service.isDraw());
     }
 
     @Test
@@ -72,12 +72,12 @@ class BoardServiceTest {
         service.makeMove(4, Sign.X);
         service.makeMove(2, Sign.O);
 
-        Assertions.assertFalse(service.checkDraw());
+        Assertions.assertFalse(service.isDraw());
     }
 
     @Test
     public void checkDrawOnEmptyField() {
-        Assertions.assertFalse(service.checkDraw());
+        Assertions.assertFalse(service.isDraw());
     }
 
     @Test
@@ -98,6 +98,47 @@ class BoardServiceTest {
     @Test
     public void makingMoveWithInvalidIndexShouldThrowException () {
         Assertions.assertThrows(InvalidMoveException.class, () -> service.makeMove(11, Sign.O));
+    }
+
+    @Test
+    public void fillBoardTest () {
+        Character[] expected = {
+                'O', 'X', ' ',
+                'O', ' ', ' ',
+                'X', ' ', ' '
+        };
+
+        service.fillBoard(expected);
+
+        Assertions.assertArrayEquals(expected, service.getBoard());
+    }
+
+    @Test
+    public void fillBoardWithLargeArrayTest () {
+        Character[] toFill = {
+                'O', 'X', ' ',
+                'O', ' ', ' ',
+                'O', ' ', ' ',
+                'X', ' ', ' '
+        };
+
+        Character[] expected = {
+                'O', 'X', ' ',
+                'O', ' ', ' ',
+                'O', ' ', ' '
+        };
+
+        service.fillBoard(toFill);
+
+        Assertions.assertArrayEquals(expected, service.getBoard());
+    }
+
+    @Test
+    public void fillNotEmptyBoardShouldThrowException () {
+        service.makeMove(0, Sign.O);
+        service.makeMove(1, Sign.X);
+
+        Assertions.assertThrows(IllegalStateException.class, () -> service.fillBoard(new Character[] {'X'}));
     }
 
 }

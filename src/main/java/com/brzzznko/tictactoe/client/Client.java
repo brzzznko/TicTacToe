@@ -1,5 +1,6 @@
 package com.brzzznko.tictactoe.client;
 
+import com.brzzznko.tictactoe.model.GameDTO;
 import com.brzzznko.tictactoe.model.MoveDTO;
 import com.brzzznko.tictactoe.service.GameService;
 import com.brzzznko.tictactoe.utility.WebSocketApiConstants;
@@ -43,6 +44,11 @@ public class Client {
             return session;
         }
 
+        if (session != null && !session.isConnected()) {
+            service.handleDisconnect();
+            session = null;
+        }
+
         return connectToWebSocket();
     }
 
@@ -62,16 +68,16 @@ public class Client {
     }
 
     private void subscribeToTopics(StompSession session) {
-        session.subscribe(WebSocketApiConstants.DESTINATION_GET_SIGN, new StompFrameHandler() {
+        session.subscribe(WebSocketApiConstants.DESTINATION_GAME_JOIN, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return Character.class;
+                return GameDTO.class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                Character sign = (Character) payload;
-                service.setPlayerSign(sign);
+                GameDTO gameInfo = (GameDTO) payload;
+                service.acceptGameState(gameInfo);
             }
         });
 

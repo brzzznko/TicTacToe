@@ -12,7 +12,7 @@ public class WebSocketApiConstants {
     public final String DESTINATION_MOVE_REQUESTED = DESTINATION_PREFIX + "/move/requested";
     public final String DESTINATION_MOVE_ACCEPTED = DESTINATION_PREFIX + "/move/accepted";
     public final String DESTINATION_MOVE_REJECTED = DESTINATION_PREFIX + "/move/error";
-    public final String DESTINATION_GET_SIGN = DESTINATION_PREFIX + "/sign";
+    public final String DESTINATION_GAME_JOIN = DESTINATION_PREFIX + "/game/join/response";
 
     public final String MOVE = "/move";
     public final String MOVE_REQUEST = "/move/request";

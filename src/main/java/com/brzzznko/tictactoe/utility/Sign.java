@@ -5,8 +5,8 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class Sign {
 
-    public final char X = 'X';
-    public final char O = 'O';
-    public final char EMPTY = ' ';
+    public final Character X = 'X';
+    public final Character O = 'O';
+    public final Character EMPTY = ' ';
 
 }
