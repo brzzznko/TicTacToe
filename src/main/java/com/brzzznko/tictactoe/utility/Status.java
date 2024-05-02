@@ -14,7 +14,6 @@ public enum Status {
     RECEIVED_ACCEPT("Received accept message."),
     WON("Current instance won the game!"),
     LOST("Current instance lost the game!"),
-
     DRAW("The game ended in a draw!");
 
     private final String description;
