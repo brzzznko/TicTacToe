@@ -114,7 +114,7 @@ class BoardServiceTest {
     }
 
     @Test
-    public void fillBoardWithLargeArrayTest () {
+    public void fillBoardWithLargerArrayTest () {
         Character[] toFill = {
                 'O', 'X', ' ',
                 'O', ' ', ' ',
@@ -131,6 +131,15 @@ class BoardServiceTest {
         service.fillBoard(toFill);
 
         Assertions.assertArrayEquals(expected, service.getBoard());
+    }
+
+    @Test
+    public void fillBoardWithSmallerArrayTest () {
+        Character[] toFill = {
+                'O', 'X', ' ',
+        };
+
+        Assertions.assertThrows(RuntimeException.class, () -> service.fillBoard(toFill));
     }
 
     @Test
