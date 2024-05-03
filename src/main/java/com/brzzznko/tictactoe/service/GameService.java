@@ -59,7 +59,7 @@ public class GameService {
 
     public void handleDisconnect() {
         log.info("Other instance has disconnected...");
-        beforeDisconnectStatus = Status.valueOf(status.name());
+        beforeDisconnectStatus = status;
         status = Status.DISCONNECTED;
     }
 
@@ -67,11 +67,12 @@ public class GameService {
         if (status.equals(Status.WAITING)) {
             log.info("Accepted game state from other instance");
             service.fillBoard(gameInfo.getBoard());
-            status = getStatusFromEnemy(gameInfo.getGameStatus());
-            setPlayerSign(getSignFromEnemy(gameInfo.getEnemySign()));
+            status = getStatusByOtherInstance(gameInfo.getGameStatus());
+            setPlayerSign(getSignByOtherInstance(gameInfo.getEnemySign()));
+
         } else if (status.equals(Status.DISCONNECTED)) {
             log.info("Joined. Game continues!");
-            status = Status.valueOf(beforeDisconnectStatus.name());
+            status = beforeDisconnectStatus;
         }
 
         checkGameEnd();
@@ -82,15 +83,15 @@ public class GameService {
         service.setCurrentSign(sign);
     }
 
-    private Character getSignFromEnemy(Character enemySign) {
-        if (enemySign.equals(Sign.X)) {
+    private Character getSignByOtherInstance(Character sign) {
+        if (sign.equals(Sign.X)) {
             return Sign.O;
         }
 
         return Sign.X;
     }
 
-    private Status getStatusFromEnemy(Status status) {
+    private Status getStatusByOtherInstance(Status status) {
         return switch (status) {
             case WAITING, RECEIVED_ACCEPT, DISCONNECTED -> Status.RECEIVED_MOVE;
             case REJECT_REQUIRED, WAITING_ACCEPT, REQUESTED_MOVE -> Status.REJECT_REQUIRED;
@@ -179,7 +180,7 @@ public class GameService {
     }
 
     private void sendReject() {
-        log.info("Rejecting losted move from the server");
+        log.info("Rejecting the losted move from the server");
         status = Status.RECEIVED_ACCEPT;
     }
 

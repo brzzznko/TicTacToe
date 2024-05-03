@@ -19,7 +19,9 @@ public class BoardService {
     };
 
     private final int[][] winCombinations = {
-            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}
+            {0, 1, 2}, {3, 4, 5}, {6, 7, 8},
+            {0, 3, 6}, {1, 4, 7}, {2, 5, 8},
+            {0, 4, 8}, {2, 4, 6}
     };
 
     private char currentSign = Sign.EMPTY;
@@ -67,7 +69,7 @@ public class BoardService {
     }
 
     private void validateMove(int index) {
-        if (index < 0 || index > 9 || board[index] != ' ') {
+        if (index < 0 || index > 9 || board[index] != Sign.EMPTY) {
             throw new InvalidMoveException();
         }
     }
@@ -97,7 +99,7 @@ public class BoardService {
 
     public boolean isDraw() {
         for (Character sign : board) {
-            if (sign == Sign.EMPTY) {
+            if (Sign.EMPTY.equals(sign)) {
                 return false;
             }
         }
